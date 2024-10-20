@@ -1,8 +1,7 @@
 /*
 	graph
-	This problem requires you to implement a basic graph functio
+	This problem requires you to implement a basic graph function
 */
-// I AM NOT DONE
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -29,7 +28,15 @@ impl Graph for UndirectedGraph {
         &self.adjacency_table
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (u, v, w) = edge;
+        self.adjacency_table_mutable()
+            .entry(String::from(u))
+            .or_insert(Vec::new())
+            .push((String::from(v), w));
+        self.adjacency_table_mutable()
+            .entry(String::from(v))
+            .or_insert(Vec::new())
+            .push((String::from(u), w));
     }
 }
 pub trait Graph {
@@ -37,11 +44,18 @@ pub trait Graph {
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>>;
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
-        //TODO
-		true
+        if self.contains(node) {
+            return false;
+        }
+        self.adjacency_table_mutable().insert(String::from(node), Vec::new());
+        true
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (u, v, w) = edge;
+        self.adjacency_table_mutable()
+            .entry(String::from(u))
+            .or_insert(Vec::new())
+            .push((String::from(v), w));
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
@@ -50,13 +64,13 @@ pub trait Graph {
         self.adjacency_table().keys().collect()
     }
     fn edges(&self) -> Vec<(&String, &String, i32)> {
-        let mut edges = Vec::new();
+        let mut edge = Vec::new();
         for (from_node, from_node_neighbours) in self.adjacency_table() {
             for (to_node, weight) in from_node_neighbours {
-                edges.push((from_node, to_node, *weight));
+                edge.push((from_node, to_node, *weight));
             }
         }
-        edges
+        edge
     }
 }
 #[cfg(test)]

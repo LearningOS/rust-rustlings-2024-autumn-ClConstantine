@@ -2,8 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
-
 use std::cmp::Ord;
 use std::default::Default;
 
@@ -37,7 +35,17 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        if self.items.len() == 0 {
+            self.items.push(T::default());
+        }
+        self.items.push(value);
+        self.count += 1;
+
+        let mut idx = self.count;
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            self.items.swap(idx, idx / 2);
+            idx = self.parent_idx(idx);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +65,14 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let l = self.left_child_idx(idx);
+        let r = self.right_child_idx(idx);
+        if r > self.count || (self.comparator)(&self.items[l], &self.items[r]) {
+            l
+        } else {
+            r
+        }
+
     }
 }
 
@@ -79,13 +93,33 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Clone,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+        let value = self.items[1].clone();
+        self.items.swap(1, self.count);
+        self.items.pop();
+        self.count -= 1;
+
+        let mut idx = 1;
+        while idx * 2 <= self.count && self.children_present(idx) {
+            
+            let smallest_child_idx = self.smallest_child_idx(idx);
+
+            if (self.comparator)(&self.items[smallest_child_idx], &self.items[idx]) {
+                self.items.swap(idx, smallest_child_idx);
+                idx = smallest_child_idx;
+            } else {
+                break;
+            }
+        }
+
+        Some(value)
     }
 }
 
